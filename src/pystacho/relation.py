@@ -13,8 +13,6 @@ class Relation:
             'group': '',
             'having': '',
             'order': [],
-            # 'limit': 1,
-            # 'offset': 0
         }
 
         self.query_values = []
@@ -182,13 +180,7 @@ class Relation:
         return Relation(self.model, new_query)
 
     # def delete_all(self):
-    #     for record in self.records:
-    #         record.delete()
-    #
-    #     return self
+    #     pass
     #
     # def update_all(self, **kwargs):
-    #     for record in self.records:
-    #         record.update(**kwargs)
-    #
-    #     return self
+    #     pass

@@ -4,7 +4,7 @@ from pystacho.helper import Helper
 
 
 class Config:
-    DEFAULT_ADAPTER = 'mysql'
+    DEFAULT_ADAPTER = 'sqlite'
 
     def __init__(self):
         if not Path(Helper.config_file()).is_file():

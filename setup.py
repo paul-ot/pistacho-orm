@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pystacho",
-    version="0.1.3",
+    version="0.1.4",
     author="Paul Marclay",
     author_email="paul.eduardo.marclay@gmail.com",
     description="A simple ORM for Python, inspired by ActiveRecord, of Rails framework.",

@@ -1,5 +1,5 @@
-import mysql.connector
 import inflect
+import copy
 from pystacho.database import Database
 from pystacho.relation import Relation
 from pystacho.helper import Helper
@@ -54,6 +54,19 @@ class Model(Database):
         for key, value in kwargs.items():
             self._attributes[key] = value
 
+    @staticmethod
+    def _base_query_params(new_params):
+        updated_params = {
+            'select': '*',
+            'where': [],
+            'group': '',
+            'having': '',
+            'order': [],
+        }
+        updated_params.update(new_params)
+
+        return updated_params
+
     def save(self):
         if self._id_value():
             sql_query, attribute_values = self.update_sql(self)
@@ -67,7 +80,7 @@ class Model(Database):
                 self._attributes[self._id()] = record_id
 
             return True
-        except mysql.connector.errors.IntegrityError:
+        except:
             return False
 
     def update(self, **kwargs):
@@ -132,15 +145,15 @@ class Model(Database):
 
     @classmethod
     def where(cls, *args, **kwargs):
-        return Relation(cls(), {'where': [Helper.process_user_arguments(*args, **kwargs)]})
+        return Relation(cls(), Model._base_query_params({'where': [Helper.process_user_arguments(*args, **kwargs)]}))
 
     @classmethod
     def select(cls, fields):
-        return Relation(cls(), {'select': fields})
+        return Relation(cls(), Model._base_query_params({'select': fields}))
 
     @classmethod
     def order(cls, *args, **kwargs):
-        return Relation(cls(), {'order': [Helper.process_user_arguments(*args, **kwargs)]})
+        return Relation(cls(), Model._base_query_params({'order': [Helper.process_user_arguments(*args, **kwargs)]}))
 
     @classmethod
     def all(cls):
@@ -148,7 +161,7 @@ class Model(Database):
 
     @classmethod
     def limit(cls, limit, offset=0):
-        return Relation(cls(), {'limit': limit, 'offset': offset})
+        return Relation(cls(), Model._base_query_params({'limit': limit, 'offset': offset}))
 
     @classmethod
     def last(cls, limit=1):
@@ -160,10 +173,8 @@ class Model(Database):
 
     @classmethod
     def count(cls):
-        return Relation(cls(), {'select': 'count(*)'}).count()
+        return Relation(cls(), Model._base_query_params({'select': 'count(*)'})).count()
 
     @classmethod
     def ids(cls):
-        return Relation(cls(), {'select': 'id'}).ids()
-
-
+        return Relation(cls(), Model._base_query_params({'select': 'id'})).ids()

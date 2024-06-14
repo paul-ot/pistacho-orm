@@ -5,6 +5,7 @@ from pystacho.logger import Logger
 
 
 class Mysql:
+    ENGINE_NAME = 'MySql'
     WRAP_CHAR = '`'
 
     def __init__(self, config):
@@ -22,13 +23,6 @@ class Mysql:
             database=self._config["name"]
         )
 
-    def wrap_items(self, item, table_name=None):
-        wrapped_table_name = ''
-        if table_name:
-            wrapped_table_name = f"{self.WRAP_CHAR}{table_name}{self.WRAP_CHAR}."
-
-        return f"{wrapped_table_name}{self.WRAP_CHAR}{item}{self.WRAP_CHAR}"
-
     @contextmanager
     def database_connection(self):
         connection = self.connection_pool().get_connection()
@@ -36,6 +30,16 @@ class Mysql:
             yield connection
         finally:
             connection.close()
+
+    # -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+    # Creator methods -
+    # -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+    def wrap_items(self, item, table_name=None):
+        wrapped_table_name = ''
+        if table_name:
+            wrapped_table_name = f"{self.WRAP_CHAR}{table_name}{self.WRAP_CHAR}."
+
+        return f"{wrapped_table_name}{self.WRAP_CHAR}{item}{self.WRAP_CHAR}"
 
     def query_requires_commit(self, query):
         if query.strip().lower().startswith('insert'):
@@ -72,7 +76,7 @@ class Mysql:
                 if cursor.description:
                     data['fields'] = [field[0] for field in cursor.description]
 
-                Logger.log_sql(query, values, duration)
+                Logger.log_sql(query, values, duration, self.ENGINE_NAME)
 
                 if self.query_inserts_record(query):
                     data['last_record_id'] = cursor.lastrowid
@@ -161,13 +165,13 @@ class Mysql:
         return sql_query, query_values
 
     def make_group_sql(self, relation):
-        if 'group' not in relation.query:
+        if not relation.query['group']:
             return ''
 
         return f" GROUP BY {relation.query['group']} "
 
     def make_having_sql(self, relation):
-        if 'having' not in relation.query:
+        if not relation.query['having']:
             return ''
 
         return f" HAVING {relation.query['having']}"
