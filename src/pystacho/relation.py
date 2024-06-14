@@ -128,6 +128,7 @@ class Relation:
         return Relation(self.model, new_query)
 
     def last(self, limit=1):
+        old_query = copy.deepcopy(self.query)
         self.query['limit'] = limit
         self.query['order'] = [{'id': 'desc'}]
         if limit == 1:
@@ -135,15 +136,20 @@ class Relation:
         else:
             self._run_engine()
 
+        self.query = old_query
+
         return self.results
 
     def first(self, limit=1):
+        old_query = copy.deepcopy(self.query)
         self.query['limit'] = limit
         self.query['order'] = [{'id': 'asc'}]
         if limit == 1:
             self._run_engine('individual')
         else:
             self._run_engine()
+
+        self.query = old_query
 
         return self.results
 
